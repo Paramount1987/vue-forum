@@ -8,7 +8,7 @@
     </router-link>
 
     <ul>
-      <li class="navber-user">
+      <li v-if="user" class="navber-user">
         <router-link :to="{name: 'Profile'}">
           <img
             class="avatar-small"
