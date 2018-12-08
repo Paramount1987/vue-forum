@@ -1,5 +1,5 @@
 <template>
-  <div class="col-large push-top">
+  <div v-if="thread && user" class="col-large push-top">
 
     <h1>
       {{ thread.title }}
@@ -27,6 +27,7 @@
 <script>
 import PostList from '@/components/PostList'
 import PostEditor from '@/components/PostEditor'
+import {countObjectProperties} from '@/utils'
 
 export default {
   components: {
@@ -55,14 +56,7 @@ export default {
     },
 
     contributorsCount () {
-      // find the replies
-      const replies = Object.keys(this.thread.posts)
-        .filter(postId => postId !== this.thread.firstPostId)
-        .map(postId => this.$store.state.posts[postId])
-      // get the user ids
-      const userIds = replies.map(post => post.userId)
-      // count the unique ids
-      return userIds.filter((item, index) => index === userIds.indexOf(item)).length
+      return countObjectProperties(this.thread.contributors)
     },
 
     posts () {
@@ -70,6 +64,21 @@ export default {
       return Object.values(this.$store.state.posts)
         .filter(post => postsIds.includes(post['.key']))
     }
+  },
+
+  created () {
+    // fetch data
+    this.$store.dispatch('fetchThread', {id: this.id})
+      .then(thread => {
+      // fetch user
+        this.$store.dispatch('fetchUser', {id: thread.userId})
+        this.$store.dispatch('fetchPosts', {ids: Object.keys(thread.posts)})
+          .then(posts => {
+            posts.forEach(post => {
+              this.$store.dispatch('fetchUser', {id: post.userId})
+            })
+          })
+      })
   }
 }
 </script>

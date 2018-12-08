@@ -1,5 +1,5 @@
 <template>
-  <div class="thread">
+  <div v-if="thread && user" class="thread">
 
     <div>
       <p>
@@ -17,14 +17,6 @@
         {{repliesCount}} replies
       </p>
       <img src="" alt="" class="avatar-medium">
-
-      <!-- <div>
-        <p class="text-small">
-          <a href="#">Bruce Wayne</a>
-        </p>
-        <p class="text-small text-faded">2 hours ago</p>
-      </div> -->
-
     </div>
 
   </div>
