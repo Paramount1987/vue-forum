@@ -14,8 +14,8 @@
     <div class="sk-circle12 sk-circle"></div>
   </div>
 </template>
- <script>
-    export default {}
+<script>
+export default {}
 </script>
  <style scoped>
   .sk-fading-circle {
