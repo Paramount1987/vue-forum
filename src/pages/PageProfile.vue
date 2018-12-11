@@ -11,7 +11,7 @@
       :user="user"
     />
 
-    <div class="col-7 push-top">
+    <div v-if="user" class="col-7 push-top">
       <div class="profile-header">
         <span class="text-lead">{{user.username}}'s recent activity</span>
         <a href="#">See only started threads?</a>
@@ -55,6 +55,10 @@ export default {
 
       return []
     }
+  },
+
+  created () {
+    this.$emit('ready')
   }
 }
 </script>
