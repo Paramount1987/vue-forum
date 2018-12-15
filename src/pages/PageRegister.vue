@@ -13,7 +13,7 @@
             class="form-input"
           >
           <template v-if="$v.form.name.$error">
-            <span v-if="!$v.form.name.required">This field is required</span>
+            <span v-if="!$v.form.name.required" class="form-error">This field is required</span>
           </template>
         </div>
          <div class="form-group">
@@ -26,8 +26,8 @@
             class="form-input"
           >
           <template v-if="$v.form.username.$error">
-            <span v-if="!$v.form.username.required">This field is required</span>
-            <span v-if="!$v.form.username.unique">Sorry! This username is taken</span>
+            <span v-if="!$v.form.username.required" class="form-error">This field is required</span>
+            <span v-if="!$v.form.username.unique" class="form-error">Sorry! This username is taken</span>
           </template>
         </div>
          <div class="form-group">
@@ -40,9 +40,9 @@
             class="form-input"
           >
           <template v-if="$v.form.email.$error">
-            <span v-if="!$v.form.email.required">This field is required</span>
-            <span v-if="!$v.form.email.email">This is not a valid email address</span>
-            <span v-if="!$v.form.email.unique">Sorry!This email address is taken</span>
+            <span v-if="!$v.form.email.required" class="form-error">This field is required</span>
+            <span v-if="!$v.form.email.email" class="form-error">This is not a valid email address</span>
+            <span v-if="!$v.form.email.unique" class="form-error">Sorry!This email address is taken</span>
           </template>
         </div>
          <div class="form-group">
@@ -55,21 +55,23 @@
             class="form-input"
           >
           <template v-if="$v.form.password.$error">
-            <span v-if="!$v.form.password.required">This field is required</span>
-            <span v-if="!$v.form.password.minLength">The password must be at least 6 characters long</span>
+            <span v-if="!$v.form.password.required" class="form-error">This field is required</span>
+            <span v-if="!$v.form.password.minLength" class="form-error">The password must be at least 6 characters long</span>
           </template>
         </div>
          <div class="form-group">
           <label for="avatar">Avatar</label>
           <input
-            v-model="form.avatar"
+            v-model.lazy="form.avatar"
             @blur="$v.form.avatar.$touch()"
             id="avatar"
             type="text"
             class="form-input"
           >
           <template v-if="$v.form.avatar.$error">
-            <span v-if="!$v.form.avatar.required">This field is required</span>
+            <span v-if="!$v.form.avatar.url" class="form-error">The supplied URL is invalid</span>
+            <span v-else-if="!$v.form.avatar.supportedImageFile" class="form-error">This file type is not supported by our system</span>
+            <span v-else-if="!$v.form.avatar.responseOk" class="form-error">The supplied image cannot be found</span>
           </template>
         </div>
          <div class="form-actions">
@@ -84,7 +86,7 @@
 </template>
 <script>
 import firebase from 'firebase'
-import {required, email, minLength, helpers as vuelidateHelpers} from 'vuelidate/lib/validators'
+import {required, email, minLength, url, helpers as vuelidateHelpers} from 'vuelidate/lib/validators'
 
 export default {
   data () {
@@ -134,7 +136,25 @@ export default {
         minLength: minLength(6)
       },
       avatar: {
-        required
+        url,
+        supportedImageFile (value) {
+          if (!vuelidateHelpers.req(value)) {
+            return true
+          }
+          const supported = ['jpg', 'jpeg', 'gif', 'png', 'svg']
+          const suffix = value.split('.').pop()
+          return supported.includes(suffix)
+        },
+        responseOk (value) {
+          if (!vuelidateHelpers.req(value)) {
+            return true
+          }
+          return new Promise((resolve, reject) => {
+            fetch(value)
+              .then(response => resolve(response.ok))
+              .catch(() => resolve(false))
+          })
+        }
       }
     }
   },
